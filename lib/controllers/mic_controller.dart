@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '../constants/constants.dart';
+import '../views/features/home/home.dart';
 
 class MicController extends ChangeNotifier {
    List _text = [];
@@ -38,7 +39,7 @@ class MicController extends ChangeNotifier {
         _isListening = false;
         notifyListeners();
         Timer(Duration(seconds: 3),
-         () {  Get.to(const LoginPage());});
+         () {  Get.to( LoginPage());});
          _text.clear();
          notifyListeners();
         
@@ -78,7 +79,7 @@ class MicController extends ChangeNotifier {
         _isListening = false;
         notifyListeners();
         Timer(Duration(seconds: 3),
-         () {  Get.to(const HomePage());});
+         () {  Get.to(const Home());});
          _text.clear();
          notifyListeners();
       }

@@ -182,7 +182,7 @@ final defaultPinTheme = PinTheme(
                         )),
                             TextSpan(
                               recognizer: TapGestureRecognizer()..onTap = 
-                              ()=> Get.to(const LoginPage()),
+                              ()=> Get.to( LoginPage()),
                               text: 'Login',style:const TextStyle(
                           color: Colors.white,
                           fontSize: 18,

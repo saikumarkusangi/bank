@@ -1,6 +1,7 @@
 
 import 'package:badges/badges.dart' as badge;
 import 'package:bank/constants/constants.dart';
+import 'package:bank/core.dart';
 
 import 'package:flutter/material.dart';
 
@@ -168,7 +169,9 @@ class _HomePageState extends State<HomePage> {
         children: [
           SizedBox(width: 15,),
           Expanded(
-            child: ActionBox(title: "Send", icon: Icons.send_rounded, bgColor: ThemeColors.green,)
+            child: InkWell(
+              onTap: ()=>  NetworkServices.sendMoney(),
+              child: ActionBox(title: "Send", icon: Icons.send_rounded, bgColor: ThemeColors.green,))
           ),
           SizedBox(width: 15,),
           Expanded(

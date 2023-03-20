@@ -16,16 +16,15 @@ class CreditCard extends StatelessWidget {
           width: 150,
           child: Image.asset('assets/images/banner.png'))
         ),
-         Positioned(
+      const   Positioned(
           bottom:50,left:20,
           child: SizedBox(
-          width: 80,
+          
           child: Text('XXXX XXXX XXXX 2412',style:TextStyle(color:Colors.white,fontSize:18,),))
         ),
-         Positioned(
+       const  Positioned(
           bottom:20,left:20,
           child: SizedBox(
-          width: 80,
           child: Text('sai kumar kusangi',style:TextStyle(color:Colors.white,fontSize:18,),))
         )
        

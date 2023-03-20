@@ -41,7 +41,7 @@ class MyApp extends StatelessWidget {
           floatingActionButtonTheme: FloatingActionButtonThemeData(backgroundColor: Colors.red),
           primarySwatch: Colors.blue,
         ),
-        home: const LoginPage(),
+        home:  LoginPage(),
       ),
     );
   }
