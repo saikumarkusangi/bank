@@ -3,9 +3,12 @@ import 'dart:io';
 import 'package:avatar_glow/avatar_glow.dart';
 import 'package:bank/controllers/controllers.dart';
 import 'package:bank/controllers/mic_controller.dart';
+import 'package:bank/controllers/user_controller.dart';
 import 'package:bank/services/network_services.dart';
+import 'package:bank/views/features/home/home.dart';
 import 'package:bank/views/features/login/login_page.dart';
 import 'package:bank/views/views.dart';
+import 'package:bank/views/widgets/demo.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
@@ -27,31 +30,31 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider<MicController>(
             create: (context) => MicController()),
-      
+        ChangeNotifierProvider<UserController>(
+            create: (context) => UserController()),
       ],
       child: GetMaterialApp(
-        builder: (context,child){
-          return ScrollConfiguration(
-            behavior: MyBehaviour(),
-             child: child!);
+        builder: (context, child) {
+          return ScrollConfiguration(behavior: MyBehaviour(), child: child!);
         },
         title: 'Hdfc smart app',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-          floatingActionButtonTheme: FloatingActionButtonThemeData(backgroundColor: Colors.red),
+          floatingActionButtonTheme:
+              FloatingActionButtonThemeData(backgroundColor: Colors.red),
           primarySwatch: Colors.blue,
         ),
-        home:  LoginPage(),
+        home:const LoginPage(),
       ),
     );
   }
 }
 
-class MyBehaviour extends ScrollBehavior{
+class MyBehaviour extends ScrollBehavior {
   @override
   Widget buildOverscrollIndicator(
-    BuildContext context,Widget child,ScrollableDetails details){
-      return child;
-    }
-  
+      BuildContext context, Widget child, ScrollableDetails details) {
+    return child;
+  }
 }
+

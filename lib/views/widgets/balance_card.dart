@@ -1,55 +1,66 @@
-
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-import '../../constants/constants.dart';
+import '../../controllers/user_controller.dart';
 
 class BalanceCard extends StatelessWidget {
-  const BalanceCard({ Key? key }) : super(key: key);
+  const BalanceCard({super.key});
 
   @override
   Widget build(BuildContext context) {
-   return  Stack(
-              clipBehavior: Clip.none,
-              children: [
-                Container(
-                  height: 120,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: ThemeColors.primary,
-                    borderRadius: BorderRadius.circular(30),
-                    boxShadow: [
-                      BoxShadow(
-                        color: ThemeColors.shadowColor.withOpacity(0.1),
-                        spreadRadius: 1,
-                        blurRadius: 1,
-                        offset: Offset(1, 1), // changes position of shadow
-                      ),
-                    ],
-                    
-                  ),
-                  child: Column(
-                    children: [
-                      SizedBox(height: 25,),
-                      Text("Your Balance", style: TextStyle(color: Colors.grey, fontSize: 14, ),),
-                      SizedBox(height: 10,),
-                      Text("\$860,500.00", style: TextStyle(color: ThemeColors.secondary, fontSize: 18, fontWeight: FontWeight.w600 ),),
-                    ],
-                  ),
-                ),
-                Positioned(
-                  top: 100,
-                  left: 0, right: 0,
-                  child: Container(
-                    padding: EdgeInsets.all(5),
-                    decoration: BoxDecoration(
-                      color: ThemeColors.secondary,
-                      shape: BoxShape.circle,
-                      border: Border.all()
-                    ),
-                    child: Icon(Icons.add)
-                  )
-                )
-            ],
+    final userDataProvider = Provider.of<UserController>(context);
+    return Stack(
+      children: [
+        SizedBox(child: Image.asset('assets/images/card_template.png')),
+        Positioned(
+            top: 5,
+            right: 20,
+            child: SizedBox(
+                width: 150, child: Image.asset('assets/images/banner.png'))),
+        Positioned(
+            top: 70,
+            right: 40,
+            child: SizedBox(
+                child: RichText(
+              text: TextSpan(children: [
+                TextSpan(
+                    text: "Current Balance:\n",
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.5),
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    )),
+                TextSpan(
+                    text: "₹ ${userDataProvider.currentBalance}",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 32,
+                    ))
+              ]),
+            ))),
+        Positioned(
+            bottom: 50,
+            left: 20,
+            child: SizedBox(
+                child: Text(
+              'XXXX XXXX XXXX XXXX',
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.4),
+                fontSize: 18,
+              ),
+            ))),
+        Positioned(
+            bottom: 20,
+            left: 20,
+            child: SizedBox(
+                child: Text(
+              userDataProvider.fullName,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 18,
+              ),
+            )))
+      ],
     );
   }
 }

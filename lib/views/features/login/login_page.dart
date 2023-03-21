@@ -19,12 +19,12 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
-    TextEditingController nickName = TextEditingController();
+    TextEditingController nickNameController = TextEditingController();
 
-    String pin = '';
     bool keyboardIsOpen = MediaQuery.of(context).viewInsets.bottom != 0;
-    final focusNode = FocusNode();
+    // final focusNode = FocusNode();
     final formKey = GlobalKey<FormState>();
+
     const focusedBorderColor = Colors.white;
     const fillColor = Colors.white;
     const borderColor = Colors.blue;
@@ -42,11 +42,13 @@ class _LoginPageState extends State<LoginPage> {
     );
 
     void login() {
-      try {
-        print(nickName.text + 'input');
-        NetworkServices.userlogin(nickName.text);
-      } catch (e) {
-        rethrow;
+      if (formKey.currentState!.validate()) {
+        try {
+          print(nickNameController.text + 'input');
+          NetworkServices.userlogin(nickNameController.text);
+        } catch (e) {
+          rethrow;
+        }
       }
     }
 
@@ -84,109 +86,115 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 Padding(
                   padding: const EdgeInsets.all(20.0),
-                  child: Column(
-                    children: [
-                      TextFormField(
-                         controller: nickName,
-                        keyboardType: TextInputType.text,
-                        style: const TextStyle(fontSize: 20),
-                        autofocus: true,
-                        decoration: InputDecoration(
-                            hintStyle: const TextStyle(fontSize: 18),
-                            fillColor: Colors.white,
-                            filled: true,
-                            hintText: 'nick name',
-                            border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10))),
-                        onFieldSubmitted: (value) =>
-                            FocusScope.of(context).requestFocus(focusNode),
-                      ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      Pinput(
-                        onChanged: (val) {
-                          setState(() {
-                            pin = val;
-                          });
-                        },
-                        closeKeyboardWhenCompleted: true,
-                        obscureText: true,
-                        length: 6,
-                        defaultPinTheme: defaultPinTheme,
-                        validator: (value) {
-                          return value == '123456' ? null : 'Pin is incorrect';
-                        },
-                        cursor: Column(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Container(
-                              margin: const EdgeInsets.only(bottom: 9),
-                              width: 22,
-                              height: 1,
-                              color: focusedBorderColor,
+                  child: Form(
+                    key: formKey,
+                    child: Column(
+                      children: [
+                        TextFormField(
+                          controller: nickNameController,
+                          keyboardType: TextInputType.text,
+                          style: const TextStyle(fontSize: 20),
+                        //  autofocus: true,
+                          decoration: InputDecoration(
+                              hintStyle: const TextStyle(fontSize: 18),
+                              fillColor: Colors.white,
+                              filled: true,
+                              hintText: 'nick name',
+                              border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10))),
+                        //  onFieldSubmitted: (value) =>
+                            //  FocusScope.of(context).requestFocus(focusNode),
+                          validator: (value) {
+                            if (value!.isEmpty) {
+                              return 'Enter nick name';
+                            }
+                          },
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        Pinput(
+                          closeKeyboardWhenCompleted: true,
+                          obscureText: true,
+                          length: 6,
+                          defaultPinTheme: defaultPinTheme,
+                          validator: (value) {
+                            if (value!.length < 6) {
+                              return 'Enter 6 digits pin';
+                            }
+                          },
+                          cursor: Column(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Container(
+                                margin: const EdgeInsets.only(bottom: 9),
+                                width: 22,
+                                height: 1,
+                                color: focusedBorderColor,
+                              ),
+                            ],
+                          ),
+                          focusedPinTheme: defaultPinTheme.copyWith(
+                            decoration: defaultPinTheme.decoration!.copyWith(
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: focusedBorderColor),
                             ),
-                          ],
-                        ),
-                        focusedPinTheme: defaultPinTheme.copyWith(
-                          decoration: defaultPinTheme.decoration!.copyWith(
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: focusedBorderColor),
+                          ),
+                          submittedPinTheme: defaultPinTheme.copyWith(
+                            decoration: defaultPinTheme.decoration!.copyWith(
+                              color: fillColor,
+                              borderRadius: BorderRadius.circular(19),
+                              border: Border.all(color: focusedBorderColor),
+                            ),
+                          ),
+                          errorPinTheme: defaultPinTheme.copyWith(
+                            textStyle: TextStyle(
+                                color: Colors.redAccent, fontSize: 32),
+                            decoration: defaultPinTheme.decoration!.copyWith(
+                              color: fillColor,
+                              borderRadius: BorderRadius.circular(19),
+                              border:
+                                  Border.all(color: Colors.redAccent, width: 3),
+                            ),
                           ),
                         ),
-                        submittedPinTheme: defaultPinTheme.copyWith(
-                          decoration: defaultPinTheme.decoration!.copyWith(
-                            color: fillColor,
-                            borderRadius: BorderRadius.circular(19),
-                            border: Border.all(color: focusedBorderColor),
-                          ),
-                        ),
-                        errorPinTheme: defaultPinTheme.copyWith(
-                          textStyle:
-                              TextStyle(color: Colors.redAccent, fontSize: 32),
-                          decoration: defaultPinTheme.decoration!.copyWith(
-                            color: fillColor,
-                            borderRadius: BorderRadius.circular(19),
-                            border:
-                                Border.all(color: Colors.redAccent, width: 3),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      InkWell(
-                        onTap: () => login(),
-                        child: const Chip(
-                          backgroundColor: Colors.white,
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 20, vertical: 10),
-                          label: Text('Login'),
-                          labelStyle: TextStyle(
-                              color: ThemeColors.background, fontSize: 26),
-                        ),
-                      ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      RichText(
-                          text: TextSpan(children: [
-                        const TextSpan(
-                            text: "Don't have an account? ",
-                            style:
-                                TextStyle(color: Colors.white, fontSize: 18)),
-                        TextSpan(
-                            recognizer: TapGestureRecognizer()
-                              ..onTap = () => Get.to(const SignUpPage()),
-                            text: 'Register',
-                            style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold))
-                      ]))
-                    ],
+                      
+                      ],
+                    ),
                   ),
-                )
+                ),
+                  const SizedBox(
+                          height: 20,
+                        ),
+                        InkWell(
+                          onTap: () => login(),
+                          child: const Chip(
+                            backgroundColor: Colors.white,
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 10),
+                            label: Text('Login'),
+                            labelStyle: TextStyle(
+                                color: ThemeColors.background, fontSize: 26),
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        RichText(
+                            text: TextSpan(children: [
+                          const TextSpan(
+                              text: "Don't have an account? ",
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 18)),
+                          TextSpan(
+                              recognizer: TapGestureRecognizer()
+                                ..onTap = () => Get.to(const SignUpPage()),
+                              text: 'Register',
+                              style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold))
+                        ]))
               ],
             ),
           ),

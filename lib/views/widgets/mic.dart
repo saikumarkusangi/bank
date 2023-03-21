@@ -84,8 +84,8 @@ class _MicState extends State<Mic> {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(30),
           child: Container(
-            width: 70,
-            height: 70,
+            width: 50,
+            height: 50,
             decoration: const BoxDecoration(color: Colors.red),
             child: Icon(micProvider.isListening
              ? Icons.mic : Icons.mic_none,color: Colors.white,size: 38,

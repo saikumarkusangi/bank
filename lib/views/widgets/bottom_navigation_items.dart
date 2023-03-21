@@ -15,14 +15,14 @@ class BottomBarItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return InkWell(
       onTap: onTap,
       child: Column(
               children: [
                 isNotified ?
                 new Stack(
                   children: <Widget>[
-                    new Icon(icon, size: 26, color: isActive ? activeColor : activeColor.withOpacity(.4),),
+                    new Icon(icon, size: 32, color: isActive ? activeColor : activeColor.withOpacity(.4),),
                     new Positioned( 
                       top: 5.0,
                       right: 0,
@@ -36,7 +36,7 @@ class BottomBarItem extends StatelessWidget {
                   ]
                 ) 
                 :
-                new Icon(icon, size: 26, color: isActive ? activeColor : activeColor.withOpacity(.4),),
+                new Icon(icon, size: 32, color: isActive ? activeColor : activeColor.withOpacity(.4),),
                 Text(title, style: TextStyle(fontSize: 10, color: isActive ? activeColor : activeColor.withOpacity(.5))),
               ],
             ),
