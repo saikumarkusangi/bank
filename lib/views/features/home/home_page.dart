@@ -3,14 +3,18 @@ import 'dart:math';
 
 import 'package:badges/badges.dart' as badge;
 import 'package:bank/constants/constants.dart';
+import 'package:bank/controllers/controllers.dart';
+import 'package:bank/controllers/history_controller.dart';
 import 'package:bank/core.dart';
 import 'package:bank/models/user_model.dart';
 import 'package:bank/views/features/send/send_page.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:pinput/pinput.dart';
 import 'package:provider/provider.dart';
 
+import '../../../controllers/speech_controller.dart';
 import '../../../controllers/user_controller.dart';
 import '../../../dummyImages/dummy_data.dart';
 import '../../widgets/action_box.dart';
@@ -19,12 +23,14 @@ import '../../widgets/balance_card.dart';
 import '../../widgets/credit_card.dart';
 import '../../widgets/transaction_item.dart';
 import '../../widgets/user_box.dart';
+import '../history/history.dart';
 import '../request/request.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
 
   @override
+  // ignore: library_private_types_in_public_api
   _HomePageState createState() => _HomePageState();
 }
 
@@ -45,13 +51,13 @@ class _HomePageState extends State<HomePage> {
           Scaffold(
             backgroundColor: Colors.transparent,
             appBar: PreferredSize(
-              preferredSize: Size(double.maxFinite, 80),
+              preferredSize: const Size(double.maxFinite, 80),
               child: Container(
                 height: 80,
-                padding: EdgeInsets.only(left: 20, right: 20, top: 5),
+                padding: const EdgeInsets.only(left: 20, right: 20, top: 5),
                 decoration: BoxDecoration(
                     color: ThemeColors.appBgColor,
-                    borderRadius: BorderRadius.only(
+                    borderRadius: const BorderRadius.only(
                         bottomLeft: Radius.circular(40),
                         bottomRight: Radius.circular(40)),
                     boxShadow: [
@@ -59,14 +65,15 @@ class _HomePageState extends State<HomePage> {
                           color: ThemeColors.shadowColor.withOpacity(0.1),
                           blurRadius: .5,
                           spreadRadius: .5,
-                          offset: Offset(0, 1))
+                          offset: const Offset(0, 1))
                     ]),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    AvatarImage(Images.avatars[Random().nextInt(1)], isSVG: false, width: 35, height: 35),
-                    SizedBox(
+                    AvatarImage(Images.avatars[1],
+                        isSVG: false, width: 35, height: 35),
+                    const SizedBox(
                       width: 15,
                     ),
                     Expanded(
@@ -79,24 +86,25 @@ class _HomePageState extends State<HomePage> {
                         children: [
                           Text(
                             Greetings.greetingText(),
-                            style: TextStyle(color: Colors.grey, fontSize: 18),
+                            style: const TextStyle(
+                                color: Colors.grey, fontSize: 18),
                           ),
-                          SizedBox(
+                          const SizedBox(
                             height: 5,
                           ),
                           Text(
                             userDataProvider.nickName,
-                            style: TextStyle(
+                            style: const TextStyle(
                                 fontWeight: FontWeight.w600, fontSize: 22),
                           ),
                         ],
                       ),
                     )),
-                    SizedBox(
+                    const SizedBox(
                       width: 15,
                     ),
                     Container(
-                        padding: EdgeInsets.all(5),
+                        padding: const EdgeInsets.all(5),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           shape: BoxShape.circle,
@@ -105,12 +113,12 @@ class _HomePageState extends State<HomePage> {
                               color: Colors.grey.withOpacity(0.2),
                               spreadRadius: 1,
                               blurRadius: 1,
-                              offset:
-                                  Offset(1, 1), // changes position of shadow
+                              offset: const Offset(
+                                  1, 1), // changes position of shadow
                             ),
                           ],
                         ),
-                        child: Icon(Icons.notifications_rounded)
+                        child: const Icon(Icons.notifications_rounded)
                         // child: badge(
                         //   padding: const EdgeInsets.all(3),
                         //   position: badge.BadgePosition.topEnd(top: -5, end: 2),
@@ -130,84 +138,88 @@ class _HomePageState extends State<HomePage> {
   }
 
   getBody() {
-    final provider = Provider.of<UserController>(context);
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          // getAppBar(),
-          const SizedBox(
-            height: 25,
+    return Consumer<HistoryController>(
+      builder: (context, value, child) => RefreshIndicator(
+        onRefresh: () async {
+          await value.transactions();
+        },
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              const SizedBox(
+                height: 25,
+              ),
+              Padding(
+                  padding: const EdgeInsets.only(left: 15, right: 15),
+                  child: (!value.balance)
+                      ? const CreditCard()
+                      : const BalanceCard()),
+              const SizedBox(
+                height: 35,
+              ),
+              getActions(),
+              const SizedBox(
+                height: 25,
+              ),
+              const SizedBox(
+                height: 25,
+              ),
+              Container(
+                  padding: const EdgeInsets.only(left: 20, right: 15),
+                  alignment: Alignment.centerLeft,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children:  [
+                      Text(
+                        "Transactions".tr,
+                        style: TextStyle(
+                            fontSize: 17, fontWeight: FontWeight.w600),
+                      ),
+                      Icon(Icons.expand_more_rounded),
+                    ],
+                  )),
+              const SizedBox(
+                height: 15,
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 15),
+                child: Column(
+                    children: List.generate(
+                        (value.history.length > 5) ? 5 : value.history.length,
+                        (index) => Container(
+                            margin: const EdgeInsets.only(right: 15),
+                            child: TransactionItem(value.history[index])))),
+              ),
+              (value.history.length > 5)
+                  ? Padding(
+                      padding: const EdgeInsets.all(15),
+                      child: InkWell(
+                        onTap: () => Get.to(const History(),transition: Transition.cupertino,
+                    duration: const Duration(milliseconds: 200)),
+                        child:  Text(
+                          'See More'.tr,
+                          style: TextStyle(color: Colors.red, fontSize: 18),
+                        ),
+                      ),
+                    )
+                  : const SizedBox(
+                      height: 0,
+                    )
+            ],
           ),
-          Padding(
-              padding: EdgeInsets.only(left: 15, right: 15),
-              child: (!balance) ? CreditCard() : BalanceCard()),
-          const SizedBox(
-            height: 35,
-          ),
-          getActions(),
-          const SizedBox(
-            height: 25,
-          ),
-
-          // const SizedBox(
-          //   height: 15,
-          // ),
-          // Padding(
-          //   padding: const EdgeInsets.only(left: 15),
-          //   child: getRecentUsers(),
-          // ),
-          const SizedBox(
-            height: 25,
-          ),
-          Container(
-              padding: const EdgeInsets.only(left: 20, right: 15),
-              alignment: Alignment.centerLeft,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    "Transactions",
-                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
-                  ),
-                  // Expanded(
-                  //     child: Container(
-                  //         alignment: Alignment.centerRight,
-                  //         child: Text(
-                  //           "Today",
-                  //           style: TextStyle(
-                  //               fontSize: 14, fontWeight: FontWeight.w500),
-                  //         ))),
-                  const Icon(Icons.expand_more_rounded),
-                ],
-              )),
-          const SizedBox(
-            height: 15,
-          ),
-          Padding(
-            padding: EdgeInsets.only(left: 15),
-            child: getTransanctions(),
-          ),
-          (provider.history.length > 5)
-              ? Padding(
-                  padding: EdgeInsets.all(15),
-                  child: Text(
-                    'See More',
-                    style: TextStyle(color: Colors.red, fontSize: 18),
-                  ),
-                )
-              : const SizedBox(
-                  height: 0,
-                )
-        ],
+        ),
       ),
     );
   }
 
   getActions() {
+    final pinController = TextEditingController();
+    final provider = Provider.of<HistoryController>(context);
+    final pinProvider = Provider.of<UserController>(context);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        SizedBox(
+        const SizedBox(
           width: 15,
         ),
         Expanded(
@@ -216,7 +228,7 @@ class _HomePageState extends State<HomePage> {
                     transition: Transition.cupertino,
                     duration: const Duration(milliseconds: 200)),
                 child: ActionBox(
-                  title: "Send",
+                  title: "Send".tr,
                   icon: Icons.send_rounded,
                   bgColor: ThemeColors.green,
                 ))),
@@ -225,9 +237,10 @@ class _HomePageState extends State<HomePage> {
         ),
         Expanded(
             child: InkWell(
-          onTap: () => Get.to(const RequestPage()),
+          onTap: () => Get.to(const RequestPage(),transition: Transition.cupertino,
+                    duration: const Duration(milliseconds: 200)),
           child: ActionBox(
-              title: "Request",
+              title: "Request".tr,
               icon: Icons.arrow_circle_down_rounded,
               bgColor: ThemeColors.yellow),
         )),
@@ -237,117 +250,116 @@ class _HomePageState extends State<HomePage> {
         Expanded(
             child: InkWell(
           onTap: () {
-            if (balance) {
-              setState(() {
-                balance = false;
-              });
-            } else {
-              setState(() {
-                balance = true;
-                Timer(const Duration(seconds: 3), () {
-                  setState(() {
-                    balance = false;
-                  });
-                });
-              });
-            }
+            final command = Provider.of<MicController>(context,listen: false);
+            
+            (command.bottomSheet)
+                ? showBottomSheet(
+                    context: context,
+                    builder: (context) {
+                      return Container(
+                        color: ThemeColors.background,
+                        height: MediaQuery.of(context).size.height / 4,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                               Text(
+                                "Enter Your Pin".tr,
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 28),
+                              ),
+                              const SizedBox(
+                                height: 20,
+                              ),
+                              Pinput(
+                                controller: pinController,
+                                closeKeyboardWhenCompleted: true,
+                                obscureText: true,
+                                length: 6,
+                                defaultPinTheme: PinTheme(
+                                  width: 56,
+                                  height: 56,
+                                  textStyle: const TextStyle(
+                                    fontSize: 32,
+                                    color: Colors.white,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(19),
+                                    border: Border.all(color: Colors.white),
+                                  ),
+                                ),
+                                validator: (value) {
+                                  if (value!.length < 6) {
+                                    return 'Enter 6 digits pin'.tr;
+                                  }
+                                  return null;
+                                },
+                                cursor: Column(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    Container(
+                                      margin: const EdgeInsets.only(bottom: 9),
+                                      width: 22,
+                                      height: 1,
+                                      color: Colors.blue,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(
+                                height: 20,
+                              ),
+                              InkWell(
+                                onTap: () {
+                                  if (pinController.text ==
+                                      pinProvider.pinNumber.trim()) {
+                                    if (provider.balance) {
+                                      provider.showBalance(false);
+                                      Navigator.pop(context);
+                                    } else {
+                                      final amount =
+                                          Provider.of<UserController>(context,
+                                              listen: false);
+                                      SpeechController.listen(
+                                          "your account balance is ruppess  ${amount.currentBalance}");
+
+                                      provider.showBalance(true);
+                                      Navigator.pop(context);
+                                    }
+                                  } else {
+                                    SpeechController.listen(
+                                        "please check your pin");
+                                    Get.snackbar('please check your pin',
+                                        'please check your pin');
+                                  }
+                                },
+                                child:  Chip(
+                                  backgroundColor: Colors.white,
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 20, vertical: 10),
+                                  label: Text('Login'.tr),
+                                  labelStyle: TextStyle(
+                                      color: ThemeColors.background,
+                                      fontSize: 26),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    })
+                : null;
           },
           child: ActionBox(
-              title: "Balance",
+              title: "Balance".tr,
               icon: Icons.account_balance_wallet_rounded,
               bgColor: ThemeColors.purple),
         )),
-        SizedBox(
+        const SizedBox(
           width: 15,
         ),
       ],
     );
-  }
-
-  // getRecentUsers() {
-  //   final provider = Provider.of<UserController>(context);
-  //   bool showTitle = false;
-  //   return SingleChildScrollView(
-  //     padding: EdgeInsets.only(bottom: 5),
-  //     scrollDirection: Axis.horizontal,
-  //     child: Column(
-  //       children: [
-  //         (showTitle)
-  //             ? Container(
-  //                 padding: const EdgeInsets.only(left: 20),
-  //                 alignment: Alignment.centerLeft,
-  //                 child: Text(
-  //                   "Send Again",
-  //                   style: TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
-  //                 ))
-  //             : SizedBox(
-  //                 height: 0,
-  //               ),
-  //         Row(
-  //             children: List.generate(
-  //                 (provider.history.length > 5) ? 5 : provider.history.length,
-  //                 (index) {
-  //           final sent = provider.history[index]['amount'];
-            
-  //           if (sent.toString().contains('-')) {
-  //             setState(() {
-  //               showTitle = true;
-  //             });
-  //           }
-  //           return index == 0
-  //               ? Row(
-  //                   mainAxisAlignment: MainAxisAlignment.start,
-  //                   children: [
-  //                     Container(
-  //                         margin: const EdgeInsets.only(right: 15),
-  //                         child: (sent.toString().contains('-'))
-  //                             ? getSearchBox()
-  //                             : SizedBox(width: 0,)),
-  //                     Container(
-  //                         margin: const EdgeInsets.only(right: 15),
-  //                         child: (sent.toString().contains('-'))
-  //                             ? UserBox(user: provider.history[index])
-  //                             : SizedBox(width: 0,))
-  //                   ],
-  //                 )
-  //               : Container(
-  //                   margin: const EdgeInsets.only(right: 15),
-  //                   child: (sent.toString().contains('-'))
-  //                       ? UserBox(user: provider.history[index])
-  //                       : null);
-  //         })),
-  //       ],
-  //     ),
-  //   );
-  // }
-
-  // getSearchBox() {
-  //   return Column(
-  //     children: [
-  //       Container(
-  //         padding: EdgeInsets.all(15),
-  //         decoration: BoxDecoration(
-  //             color: Colors.grey.shade300, shape: BoxShape.circle),
-  //         child: Icon(Icons.search_rounded),
-  //       ),
-  //       SizedBox(
-  //         height: 8,
-  //       ),
-  //       Text(
-  //         "Search",
-  //         style: TextStyle(fontWeight: FontWeight.w500),
-  //       )
-  //     ],
-  //   );
-  // }
-
-  getTransanctions() {
-    final provider = Provider.of<UserController>(context);
-    return Column(
-        children: List.generate(
-            (provider.history.length > 5) ? 5 : provider.history.length,
-            (index) => Container(
-                margin: const EdgeInsets.only(right: 15),
-                child: TransactionItem(provider.history[index]))));
   }
 }

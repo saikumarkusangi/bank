@@ -15,33 +15,11 @@ class UserController extends ChangeNotifier {
   String pinNumber = '';
   String upiId = '';
   String currentBalance = '';
-  List<Map<String, dynamic>> history = [];
+  
 
   UserController() {
-    userdatafetch();
+    userdatafetch('', '');
     send(to: '', ammount: 0, from: '');
-    transactions();
-  }
-
-  Future<dynamic> transactions() async {
-    isLoading = true;
-    notifyListeners();
-    final response = await NetworkServices.history('sandeep');
-    isLoading = false;
-    notifyListeners();
-
-    response.toString().split('}').map((e) {
-      //  print("%%%%%%%%%%%%%%%%%%%%%%%" + e.split(':')[3].replaceAll(RegExp("'"),""));
-      history.add({
-        "date": e.split(':')[2].split(',')[0].replaceAll(RegExp("'"), ''),
-        "time": e.split(':')[3].replaceAll(RegExp("'"), "")+":"+e.split(':')[4].replaceAll(RegExp("'"), ""),
-        "to-from": e.split(':')[6].split(',')[0].replaceAll(RegExp("'"), ''),
-        "amount": e.split(':')[7].split(',')[0].replaceAll(RegExp("'"), ''),
-        "balance": e.split(':')[8].split(',')[0].replaceAll(RegExp("'"), '')
-      });
-    }).toList();
-
-    return response.toString().split(',')[0].split(',');
   }
 
   Future<String> send(
@@ -51,32 +29,18 @@ class UserController extends ChangeNotifier {
     final response = await NetworkServices.send(to, ammount, from);
     isLoading = false;
     notifyListeners();
-
-    print(response + '###################');
-    return response
-        .toString()
-        .split(':')[1]
-        .replaceAll(RegExp("'"), '')
-        .substring(
-            0,
-            response
-                    .toString()
-                    .split(':')[1]
-                    .replaceAll(RegExp("'"), '')
-                    .length -
-                1);
+    return response.toString();
   }
 
-  Future<void> userdatafetch() async {
+  Future<void> userdatafetch(fnickName, fpinNumber) async {
     isLoading = true;
     notifyListeners();
-    final data = await NetworkServices.userlogin('sandeep');
-
+    final data = await NetworkServices.userlogin(fnickName, fpinNumber);
+    print("&&&&&&"+data);
     isLoading = false;
     notifyListeners();
-    print('@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@000');
+    
     userdata = data.split(',');
-    print(userdata);
 
     nickName = userdata[1].toString().split(':')[1].replaceAll(RegExp("'"), '');
     fullName = userdata[2].toString().split(':')[1].replaceAll(RegExp("'"), '');
@@ -100,7 +64,6 @@ class UserController extends ChangeNotifier {
 
     notifyListeners();
     final Balance = await NetworkServices.currentBalance(nickName);
-    print(Balance);
     currentBalance = Balance.toString()
         .split(':')[1]
         .substring(0, Balance.toString().split(':')[1].length - 3);

@@ -1,11 +1,14 @@
 import 'package:avatar_glow/avatar_glow.dart';
 import 'package:bank/constants/constants.dart';
+import 'package:bank/controllers/controllers.dart';
+import 'package:bank/controllers/user_controller.dart';
 import 'package:bank/core.dart';
 import 'package:bank/views/features/home/home.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:pinput/pinput.dart';
+import 'package:provider/provider.dart';
 import '../../views.dart';
 import '../../widgets/widgets.dart';
 
@@ -17,14 +20,22 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  TextEditingController nickNameController = TextEditingController();
+  TextEditingController pinController = TextEditingController();
+  final formKey = GlobalKey<FormState>();
+  final focusNode = FocusNode();
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    nickNameController.dispose();
+    pinController.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    TextEditingController nickNameController = TextEditingController();
-
+    final provider = Provider.of<UserController>(context);
     bool keyboardIsOpen = MediaQuery.of(context).viewInsets.bottom != 0;
-    // final focusNode = FocusNode();
-    final formKey = GlobalKey<FormState>();
-
     const focusedBorderColor = Colors.white;
     const fillColor = Colors.white;
     const borderColor = Colors.blue;
@@ -41,11 +52,20 @@ class _LoginPageState extends State<LoginPage> {
       ),
     );
 
-    void login() {
+    Future<void> login() async {
       if (formKey.currentState!.validate()) {
         try {
-          print(nickNameController.text + 'input');
-          NetworkServices.userlogin(nickNameController.text);
+          await provider.userdatafetch(
+              nickNameController.text.trim(), pinController.text.trim());
+          if (pinController.text == provider.pinNumber.trim()) {
+            SpeechController.listen("you are successfully logged in");
+            Get.snackbar("Success", "you are successfully logged in");
+            Get.to(const Home());
+          } else {
+            SpeechController.listen("something went wrong please check your details");
+            Get.snackbar("Failed", "something went wrong",
+                backgroundColor: Colors.white);
+          }
         } catch (e) {
           rethrow;
         }
@@ -67,9 +87,9 @@ class _LoginPageState extends State<LoginPage> {
                       width: MediaQuery.of(context).size.width * 0.9,
                       child: Image.asset(Images.loginbanner)),
                 ),
-                const Text(
-                  'Login',
-                  style: TextStyle(
+                 Text(
+                  'Login'.tr,
+                  style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.w800,
                       fontSize: 32),
@@ -94,20 +114,21 @@ class _LoginPageState extends State<LoginPage> {
                           controller: nickNameController,
                           keyboardType: TextInputType.text,
                           style: const TextStyle(fontSize: 20),
-                        //  autofocus: true,
+                          autofocus: true,
                           decoration: InputDecoration(
                               hintStyle: const TextStyle(fontSize: 18),
                               fillColor: Colors.white,
                               filled: true,
-                              hintText: 'nick name',
+                              hintText: 'nick name'.tr,
                               border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10))),
-                        //  onFieldSubmitted: (value) =>
-                            //  FocusScope.of(context).requestFocus(focusNode),
+                          onFieldSubmitted: (value) =>
+                              FocusScope.of(context).requestFocus(focusNode),
                           validator: (value) {
                             if (value!.isEmpty) {
-                              return 'Enter nick name';
+                              return 'Enter nick name'.tr;
                             }
+                            return null;
                           },
                         ),
                         const SizedBox(
@@ -117,11 +138,13 @@ class _LoginPageState extends State<LoginPage> {
                           closeKeyboardWhenCompleted: true,
                           obscureText: true,
                           length: 6,
+                          controller: pinController,
                           defaultPinTheme: defaultPinTheme,
                           validator: (value) {
                             if (value!.length < 6) {
                               return 'Enter 6 digits pin';
                             }
+                            return null;
                           },
                           cursor: Column(
                             mainAxisAlignment: MainAxisAlignment.end,
@@ -148,7 +171,7 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                           ),
                           errorPinTheme: defaultPinTheme.copyWith(
-                            textStyle: TextStyle(
+                            textStyle: const TextStyle(
                                 color: Colors.redAccent, fontSize: 32),
                             decoration: defaultPinTheme.decoration!.copyWith(
                               color: fillColor,
@@ -158,43 +181,40 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                           ),
                         ),
-                      
                       ],
                     ),
                   ),
                 ),
-                  const SizedBox(
-                          height: 20,
-                        ),
-                        InkWell(
-                          onTap: () => login(),
-                          child: const Chip(
-                            backgroundColor: Colors.white,
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 20, vertical: 10),
-                            label: Text('Login'),
-                            labelStyle: TextStyle(
-                                color: ThemeColors.background, fontSize: 26),
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-                        RichText(
-                            text: TextSpan(children: [
-                          const TextSpan(
-                              text: "Don't have an account? ",
-                              style:
-                                  TextStyle(color: Colors.white, fontSize: 18)),
-                          TextSpan(
-                              recognizer: TapGestureRecognizer()
-                                ..onTap = () => Get.to(const SignUpPage()),
-                              text: 'Register',
-                              style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold))
-                        ]))
+                const SizedBox(
+                  height: 20,
+                ),
+                InkWell(
+                  onTap: () => login(),
+                  child:  Chip(
+                    backgroundColor: Colors.white,
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    label: Text('Login'.tr),
+                    labelStyle:
+                        TextStyle(color: ThemeColors.background, fontSize: 26),
+                  ),
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                RichText(
+                    text: TextSpan(children: [
+                   TextSpan(
+                      text: "Don't have an account? ".tr,
+                      style: TextStyle(color: Colors.white, fontSize: 18)),
+                  TextSpan(
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () => Get.to(const SignUpPage()),
+                      text: 'Register'.tr,
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold))
+                ]))
               ],
             ),
           ),

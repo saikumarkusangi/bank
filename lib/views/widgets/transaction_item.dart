@@ -7,17 +7,18 @@ import 'package:provider/provider.dart';
 import 'avatar_image.dart';
 
 class TransactionItem extends StatelessWidget {
-  const TransactionItem(this.data, {Key? key, this.onTap}) : super(key: key);
+   TransactionItem(this.data, {Key? key, this.onTap}) : super(key: key);
   final data;
   final GestureTapCallback? onTap;
-
+ 
   @override
   Widget build(BuildContext context) {
     final send = data['amount'];
+     final  rand = Random().nextInt(4);
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        margin: EdgeInsets.only(bottom: 8),
+        margin:const EdgeInsets.only(bottom: 8),
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
           color: ThemeColors.secondary,
@@ -27,24 +28,24 @@ class TransactionItem extends StatelessWidget {
               color: ThemeColors.shadowColor.withOpacity(0.1),
               spreadRadius: 1,
               blurRadius: 1,
-              offset: Offset(1, 1), // changes position of shadow
+              offset: const Offset(1, 1), // changes position of shadow
             ),
           ],
         ),
         child: Column(
           children: [
-            SizedBox(height: 2),
+          const  SizedBox(height: 2),
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 AvatarImage(
-                  Images.avatars[Random().nextInt(4)],
+                  Images.avatars[rand],
                   isSVG: false,
                   width: 45,
                   height: 45,
                   radius: 50,
                 ),
-                SizedBox(width: 20),
+              const  SizedBox(width: 20),
                 Expanded(
                     child: Column(
                   mainAxisSize: MainAxisSize.max,

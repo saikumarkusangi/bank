@@ -1,3 +1,5 @@
+import 'package:get/get.dart';
+
 class Greetings{
   //శుభోదయం నేను మీకు ఎలా సహాయం చేయగలను
   // శుభ మధ్యాహ్నం నేను మీకు ఎలా సహాయం చేయగలను
@@ -7,12 +9,12 @@ class Greetings{
   static greetingText (){
     var time = DateTime.now().hour;
     if (time < 12) {
-      return 'Good Morning';
+      return 'Good Morning'.tr;
     } else if(time >= 12 && time < 6) {
-      return 'Good Afternoon';
+      return 'Good Afternoon'.tr;
     }
     else {
-      return 'Good Evening';
+      return 'Good Evening'.tr;
     }
   }
 }

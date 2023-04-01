@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 
 import '../../controllers/user_controller.dart';
@@ -24,15 +25,15 @@ class BalanceCard extends StatelessWidget {
                 child: RichText(
               text: TextSpan(children: [
                 TextSpan(
-                    text: "Current Balance:\n",
+                    text: "Current Balance".tr,
                     style: TextStyle(
                       color: Colors.white.withOpacity(0.5),
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
                     )),
                 TextSpan(
-                    text: "₹ ${userDataProvider.currentBalance}",
-                    style: TextStyle(
+                    text: "\n₹ ${userDataProvider.currentBalance}",
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 32,
                     ))
@@ -55,7 +56,7 @@ class BalanceCard extends StatelessWidget {
             child: SizedBox(
                 child: Text(
               userDataProvider.fullName,
-              style: TextStyle(
+              style: const TextStyle(
                 color: Colors.white,
                 fontSize: 18,
               ),

@@ -65,6 +65,17 @@ class Commands{
     'homepage'
   ];
 
+  static final checkBalanceCommand = [
+    'check account balance',
+    'check my balance'
+    'show balance',
+    'my balance',
+    'account balance',
+    'my account balance',
+    'balance',
+   
+  ];
+
   static final profilePageCommand = [
     'go to profile',
     'go to profile page',
@@ -98,6 +109,28 @@ class Commands{
     'take me previous page',
     'previous page',
     'previous screen',
+    
+  ];
+
+  static final sendCommand = [
+    'go to send page',
+    'go to send',
+    'go to send screen',
+    'send',
+    'send money page',
+    'send money screen',
+    'open send page',
+    'open send screen page',
+    'open sebd money page screen',
+    'take me to send page',
+    'take me to send',
+    'take me send screen',
+    'send page',
+    'money send',
+    'send money',
+    'transfer',
+    'transfer money',
+    'money transfer'
     
   ];
 }

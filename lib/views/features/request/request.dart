@@ -46,7 +46,7 @@ class _RequestPageState extends State<RequestPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children:const [
                       
-                      Text('sai kumae',style: TextStyle(
+                      Text('',style: TextStyle(
                         color: Colors.black,
                         fontSize: 28
                       ),),

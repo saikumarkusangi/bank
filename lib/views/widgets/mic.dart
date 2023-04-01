@@ -7,8 +7,9 @@ import 'package:flutter_tts/flutter_tts.dart';
 import 'package:provider/provider.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import '../../controllers/mic_controller.dart';
+
 class Mic extends StatefulWidget {
-const Mic({Key? key}) : super(key: key);
+  const Mic({Key? key}) : super(key: key);
 
   @override
   State<Mic> createState() => _MicState();
@@ -22,13 +23,12 @@ class _MicState extends State<Mic> {
     super.initState();
     _speech = stt.SpeechToText();
   }
-@override
- 
+
+  @override
   @override
   Widget build(BuildContext context) {
-    
     final micProvider = Provider.of<MicController>(context);
-    
+
     return AvatarGlow(
       animate: micProvider.isListening,
       glowColor: Colors.red,
@@ -37,59 +37,59 @@ class _MicState extends State<Mic> {
       duration: const Duration(milliseconds: 800),
       repeat: true,
       child: GestureDetector(
-        onLongPress: () async {
-          
-          if (!micProvider.isListening ) {
-            if (micProvider.text.isNotEmpty) {
-              micProvider.listen();
-            }
+        onLongPressStart: (start) async {
+          print("77777777777777777777777777777777777");
+          if (!micProvider.isListening) {
+            // if (micProvider.text.isNotEmpty) {
+            //   micProvider.listen();
+            // }
             bool available = await _speech.initialize(
               onStatus: (val) => print('onStatus : $val'),
               onError: (val) => print('onError : $val'),
             );
             if (available) {
-              
-                print('listening');
-               micProvider.listening(true);
-                _speech.listen(onResult: (val) async {
-                 micProvider.text.add(val.recognizedWords);
-               
-                  
-                 
-              
+              print('listening');
+              micProvider.listening(true);
+              _speech.listen(onResult: (val) async {
+                micProvider.text.add(val.recognizedWords.trim());
               });
-               Timer(Duration(seconds :3),(){
-                     print('stopping');
-                  
-                 micProvider.listening(false);
-                    
-                  _speech.stop();
-                });
-            
+              // Timer(Duration(seconds: 3), () {
+              //   print('stopping');
+
+              //   micProvider.listening(false);
+
+              //   _speech.stop();
+              // });
             } else {
-             print('off');
+              print('off');
               setState(() {
-               micProvider.listening(false);
+                micProvider.listening(false);
                 _speech.stop();
+               
               });
             }
           }
         },
-        onLongPressCancel: (){
-             if (!micProvider.isListening ) {
-          if (micProvider.text.isNotEmpty) {
-              micProvider.listen();
-            }}
+        onLongPressEnd: (end) async {
+          print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+
+          await micProvider.listening(false);
+          await _speech.stop();
+
+          micProvider.listen();
+          micProvider.text.clear();
         },
         child: ClipRRect(
           borderRadius: BorderRadius.circular(30),
           child: Container(
-            width: 50,
-            height: 50,
-            decoration: const BoxDecoration(color: Colors.red),
-            child: Icon(micProvider.isListening
-             ? Icons.mic : Icons.mic_none,color: Colors.white,size: 38,
-             )),
+              width: 50,
+              height: 50,
+              decoration: const BoxDecoration(color: Colors.red),
+              child: Icon(
+                micProvider.isListening ? Icons.mic : Icons.mic_none,
+                color: Colors.white,
+                size: 38,
+              )),
         ),
       ),
     );
